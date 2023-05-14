@@ -396,3 +396,8 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.env
+/docs/
+/venv/
+storage/docstore.json
+storage/index_store.json
