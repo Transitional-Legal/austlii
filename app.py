@@ -7,6 +7,7 @@ from langchain import OpenAI
 from data.document import Document
 
 import sqlalchemy as db
+from sqlalchemy.orm import sessionmaker
 
 import gradio as gr
 import os
@@ -21,6 +22,9 @@ os.environ["OPENAI_API_KEY"] = 'sk-jUTNsvzm4nj2nhdxeP4GT3BlbkFJLdxPFEUh5cUZikbdN
 engine = db.create_engine('postgresql://doadmin:AVNS_IWGrvoLyWBBT_TaUS9-@db-postgresql-syd1-64992-do-user-13928987-0.b.db.ondigitalocean.com:25060/tl')
 connection = engine.connect()
 
+Session = sessionmaker(bind=engine)
+session = Session()
+
 # notes https://gpt-index.readthedocs.io/en/latest/guides/primer/usage_pattern.html#optional-save-the-index-for-future-use
 def construct_index(directory_path):
     num_outputs = 512
@@ -33,13 +37,7 @@ def construct_index(directory_path):
 
     ## Show all files and print them
     for doc in docs:
-
-        print(doc)
         save_doc_to_db(doc)
-        # 
-        # Result = conn.execute(query)
-
-        
 
 
     print("Constructing index...")
@@ -52,11 +50,9 @@ def construct_index(directory_path):
 
 
 def save_doc_to_db(doc):
-    # engine = db.create_engine('postgresql://doadmin:AVNS_IWGrvoLyWBBT_TaUS9-@db-postgresql-syd1-64992-do-user-13928987-0.b.db.ondigitalocean.com:25060/tl')
-    # connection = engine.connect()
-    query = db.insert(Document).values(filename=doc.doc_id, doc_hash=doc.doc_hash)
-    result = connection.execute(query)
-    print(result)
+    document = Document(filename=doc.doc_id, doc_hash=doc.doc_hash, text=doc.text)
+    session.add(document)
+    session.commit()
 
 
 # def construct_google_index(folderid):

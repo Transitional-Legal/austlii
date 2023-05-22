@@ -10,6 +10,7 @@ class Document(Base):
     id = db.Column('id', db.Integer, primary_key=True)
     filename = db.Column('filename', db.String(100), nullable=False)
     doc_hash = db.Column('doc_hash', db.String(100), nullable=False)
+    text = db.Column('text', db.String(100000), nullable=False)
 
 
     def __init__(self, filename, doc_hash):
