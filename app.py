@@ -16,9 +16,6 @@ import os
 
 os.environ["OPENAI_API_KEY"] = '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'
 
-# engine = db.create_engine('sqlite:///ftc.db')
-# Base = db.declarative_base()
-
 engine = db.create_engine('postgresql://doadmin:AVNS_IWGrvoLyWBBT_TaUS9-@db-postgresql-syd1-64992-do-user-13928987-0.b.db.ondigitalocean.com:25060/tl')
 connection = engine.connect()
 
@@ -26,7 +23,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 # notes https://gpt-index.readthedocs.io/en/latest/guides/primer/usage_pattern.html#optional-save-the-index-for-future-use
-def construct_index(directory_path):
+def construct_index(directory_path, delete_existing=False):
     num_outputs = 512
 
     llm_predictor = LLMPredictor(llm=OpenAI(temperature=0.7, model_name="text-davinci-003", max_tokens=num_outputs))
@@ -41,7 +38,6 @@ def construct_index(directory_path):
 
 
     print("Constructing index...")
-    # docs = SimpleDirectoryReader('/home/lucascullen/GitHub/').load_data()
 
     index = GPTVectorStoreIndex.from_documents(docs, service_context=service_context)
     save_index_to_db(index)
@@ -50,9 +46,15 @@ def construct_index(directory_path):
 
 
 def save_doc_to_db(doc):
-    document = Document(filename=doc.doc_id, doc_hash=doc.doc_hash, text=doc.text)
-    session.add(document)
-    session.commit()
+    print("Checking if document exists in db...")
+    document = session.query(Document).filter_by(filename=doc.doc_id).first()
+
+    if (document != None):
+
+        print("Saving document to db...")
+        document = Document(filename=doc.doc_id, doc_hash=doc.doc_hash, text=doc.text)
+        session.add(document)
+        session.commit()
 
 
 # def construct_google_index(folderid):
@@ -80,9 +82,6 @@ def load_index_from_disk():
     index = load_index_from_storage(storage_context)
     return index
 
-
-def save_index_to_disk(index):
-    index.storage_context.persist()
 
 
 def save_index_to_db(index):
