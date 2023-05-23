@@ -30,11 +30,11 @@ def construct_index(directory_path, delete_existing=False):
     service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
 
     print("Loading documents...")
-    docs = SimpleDirectoryReader(directory_path).load_data()
+    docs = SimpleDirectoryReader(directory_path, recursive=True).load_data()
 
     ## Show all files and print them
-    for doc in docs:
-        save_doc_to_db(doc)
+    # for doc in docs:
+    #     # save_doc_to_db(doc)
 
 
     print("Constructing index...")
@@ -130,6 +130,8 @@ iface = gr.Interface(fn=chatbot,
 print("Starting...")
 
 index = construct_index("docs")
+# load_index_from_disk()
+
 # https://drive.google.com/drive/folders/1uNF5mUa-uiPyKUGtUxgBP0Ji9o1eEGv0?usp=sharing
 # index = construct_google_index('1uNF5mUa-uiPyKUGtUxgBP0Ji9o1eEGv0')
 
