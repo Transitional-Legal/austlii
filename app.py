@@ -22,12 +22,30 @@ connection = engine.connect()
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# notes https://gpt-index.readthedocs.io/en/latest/guides/primer/usage_pattern.html#optional-save-the-index-for-future-use
-def construct_index(directory_path, delete_existing=False):
+
+def load_index_from_disk():
+    storage_context = StorageContext.from_defaults('storage')
+    index = load_index_from_storage(storage_context)
+    return index
+
+
+def load_index_from_db():
     num_outputs = 512
 
     llm_predictor = LLMPredictor(llm=OpenAI(temperature=0.7, model_name="text-davinci-003", max_tokens=num_outputs))
+    docs = load_docs_from_db()
     service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+    index = GPTVectorStoreIndex.from_documents(docs)
+    return index
+
+
+
+# notes https://gpt-index.readthedocs.io/en/latest/guides/primer/usage_pattern.html#optional-save-the-index-for-future-use
+def parse_docs_folder(directory_path, delete_existing=False):
+    # num_outputs = 512
+
+    # llm_predictor = LLMPredictor(llm=OpenAI(temperature=0.7, model_name="text-davinci-003", max_tokens=num_outputs))
+    # service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
 
     print("Loading documents...")
     docs = SimpleDirectoryReader(directory_path).load_data()
@@ -37,12 +55,17 @@ def construct_index(directory_path, delete_existing=False):
         save_doc_to_db(doc)
 
 
-    print("Constructing index...")
+    # print("Constructing index...")
 
-    index = GPTVectorStoreIndex.from_documents(docs, service_context=service_context)
-    save_index_to_db(index)
+    # index = GPTVectorStoreIndex.from_documents(docs, service_context=service_context)
+    # save_index_to_db(index)
 
-    return index
+    # return index
+
+
+def load_docs_from_db():
+    documents = session.query(Document).all()
+    return documents
 
 
 def save_doc_to_db(doc):
@@ -129,7 +152,9 @@ iface = gr.Interface(fn=chatbot,
 
 print("Starting...")
 
-index = construct_index("docs")
+# index = construct_index("docs")
+index = load_index_from_db()
+
 # https://drive.google.com/drive/folders/1uNF5mUa-uiPyKUGtUxgBP0Ji9o1eEGv0?usp=sharing
 # index = construct_google_index('1uNF5mUa-uiPyKUGtUxgBP0Ji9o1eEGv0')
 
