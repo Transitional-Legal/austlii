@@ -11,3 +11,7 @@ pip install -r requirements.txt
 ```bash
 pip freeze > requirements.txt
 ```
+
+```bash
+flask --app app run
+```
