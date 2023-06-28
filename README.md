@@ -13,5 +13,6 @@ pip freeze > requirements.txt
 ```
 
 ```bash
+cd src
 flask --app app run
 ```
