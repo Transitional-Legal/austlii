@@ -1,6 +1,53 @@
+from flask import Flask
+# from llama_index import SimpleDirectoryReader, LLMPredictor, ServiceContext
+from llama_index.vector_stores import RedisVectorStore
+# # from langchain import OpenAI
+# # from llama_index.storage.index_store import RedisIndexStore
+# # from llama_index import StorageContext, load_index_from_storage
+
+from llama_index import VectorStoreIndex
+# from llama_index import VectorStoreIndex, SimpleDirectoryReader
+import os
+
+app = Flask(__name__)
+
+os.environ["OPENAI_API_KEY"] = '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'
+query_engine = None
+
+
+def load():
+    vector_store = RedisVectorStore(
+        index_name="pg_essays",
+        index_prefix="llama",
+        redis_url="redis://localhost:6379",
+        # redis_url="redis://192.168.1.20:6379",
+        overwrite=True,
+    )
+
+    # Load the index from storage
+    index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
+    query_engine = index.as_query_engine()
+
+
+@app.route('/query/<prompt>', methods=['GET'])
+def query(prompt):
+    if query_engine is None:
+        load()
+    response = query_engine.query(prompt)
+    return response
 
 
 
-def train():
-    # do something
-    return "Training"
+@app.route('/load/', methods=['POST'])
+def welcome():
+    # time the load time
+
+    load()
+    return "Loaded"
+    
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+
+    

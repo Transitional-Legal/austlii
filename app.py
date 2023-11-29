@@ -48,11 +48,11 @@ def parse_docs_folder(directory_path, delete_existing=False):
     # service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
 
     print("Loading documents...")
-    docs = SimpleDirectoryReader(directory_path).load_data()
+    docs = SimpleDirectoryReader(directory_path, recursive=True).load_data()
 
     ## Show all files and print them
-    for doc in docs:
-        save_doc_to_db(doc)
+    # for doc in docs:
+    #     # save_doc_to_db(doc)
 
 
     # print("Constructing index...")
@@ -152,8 +152,13 @@ iface = gr.Interface(fn=chatbot,
 
 print("Starting...")
 
+<<<<<<< HEAD
 # index = construct_index("docs")
 index = load_index_from_db()
+=======
+index = construct_index("docs")
+# load_index_from_disk()
+>>>>>>> 3-make-a-flask-api-end-point-to-process-a-document
 
 # https://drive.google.com/drive/folders/1uNF5mUa-uiPyKUGtUxgBP0Ji9o1eEGv0?usp=sharing
 # index = construct_google_index('1uNF5mUa-uiPyKUGtUxgBP0Ji9o1eEGv0')
