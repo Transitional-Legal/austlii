@@ -61,7 +61,7 @@ def query(prompt):
 @app.route('/load/', methods=['POST'])
 def welcome():
     # time the load time
-    add_docs_to_redis('docs')
+    add_docs_to_redis('cases')
     load()
     return "Loaded"
     
