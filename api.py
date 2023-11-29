@@ -3,7 +3,7 @@ from llama_index import SimpleDirectoryReader #, LLMPredictor, ServiceContext
 from llama_index.vector_stores import RedisVectorStore
 # # from langchain import OpenAI
 # # from llama_index.storage.index_store import RedisIndexStore
-# # from llama_index import StorageContext, load_index_from_storage
+from llama_index import StorageContext, load_index_from_storage
 
 from llama_index import VectorStoreIndex
 # from llama_index import VectorStoreIndex, SimpleDirectoryReader
@@ -20,7 +20,7 @@ def load():
         index_name="pg_essays",
         index_prefix="llama",
         redis_url="redis://localhost:6379",
-        # redis_url="redis://192.168.1.20:6379",
+        # redis_url="rediss://default:AVNS_UeoUo9p18wxjLj6DyMT@db-redis-syd1-25631-do-user-7279278-0.b.db.ondigitalocean.com:25061",
         overwrite=True,
     )
 
@@ -39,7 +39,7 @@ def add_docs_to_redis(doc_path):
         index_name="pg_essays",
         index_prefix="llama",
         redis_url="redis://localhost:6379",
-        # redis_url="redis://192.168.1.20:6379",
+        # redis_url="rediss://default:AVNS_UeoUo9p18wxjLj6DyMT@db-redis-syd1-25631-do-user-7279278-0.b.db.ondigitalocean.com:25061",
         overwrite=True,
     )
 
