@@ -1,5 +1,5 @@
 from flask import Flask
-# from llama_index import SimpleDirectoryReader, LLMPredictor, ServiceContext
+from llama_index import SimpleDirectoryReader #, LLMPredictor, ServiceContext
 from llama_index.vector_stores import RedisVectorStore
 # # from langchain import OpenAI
 # # from llama_index.storage.index_store import RedisIndexStore
@@ -29,6 +29,27 @@ def load():
     query_engine = index.as_query_engine()
 
 
+def add_docs_to_redis(doc_path):
+    # https://gpt-index.readthedocs.io/en/latest/examples/vector_stores/RedisIndexDemo.html
+    documents = SimpleDirectoryReader(doc_path).load_data()
+
+    # count = documents.__len__()
+
+    vector_store = RedisVectorStore(
+        index_name="pg_essays",
+        index_prefix="llama",
+        redis_url="redis://localhost:6379",
+        # redis_url="redis://192.168.1.20:6379",
+        overwrite=True,
+    )
+
+    storage_context = StorageContext.from_defaults(vector_store=vector_store)
+    index = VectorStoreIndex.from_documents(
+        documents, storage_context=storage_context)
+
+    return index
+
+
 @app.route('/query/<prompt>', methods=['GET'])
 def query(prompt):
     if query_engine is None:
@@ -37,11 +58,10 @@ def query(prompt):
     return response
 
 
-
 @app.route('/load/', methods=['POST'])
 def welcome():
     # time the load time
-
+    add_docs_to_redis('docs')
     load()
     return "Loaded"
     
