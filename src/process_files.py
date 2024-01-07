@@ -5,6 +5,10 @@ from llama_index.storage.storage_context import StorageContext
 from llama_index import VectorStoreIndex
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
+
 os.environ["OPENAI_API_KEY"] = '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'
 
 # Vector store
