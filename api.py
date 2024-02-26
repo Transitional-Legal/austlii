@@ -1,26 +1,26 @@
 from flask import Flask
-from llama_index import SimpleDirectoryReader #, LLMPredictor, ServiceContext
+from llama_index import SimpleDirectoryReader
 from llama_index.vector_stores import RedisVectorStore
-# # from langchain import OpenAI
-# # from llama_index.storage.index_store import RedisIndexStore
 from llama_index import StorageContext, load_index_from_storage
 
 from llama_index import VectorStoreIndex
 # from llama_index import VectorStoreIndex, SimpleDirectoryReader
+from dotenv import load_dotenv
+import requests
 import os
 
+load_dotenv()
 app = Flask(__name__)
 
 os.environ["OPENAI_API_KEY"] = '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'
 query_engine = None
 
 
-def load():
+def load(matter):
     vector_store = RedisVectorStore(
-        index_name="pg_essays",
+        index_name=matter",
         index_prefix="llama",
         redis_url="redis://localhost:6379",
-        # redis_url="rediss://default:AVNS_UeoUo9p18wxjLj6DyMT@db-redis-syd1-25631-do-user-7279278-0.b.db.ondigitalocean.com:25061",
         overwrite=True,
     )
 
@@ -29,17 +29,34 @@ def load():
     query_engine = index.as_query_engine()
 
 
-def add_docs_to_redis(doc_path):
+def add_docs_to_redis(doc_path, matter):
+
+    url = 'https://au.app.clio.com/api/v4/documents.json'
+
+    payload = {}
+    headers = {
+        'Accept': 'application/json'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    url = f'https://au.app.clio.com/api/v4/documents/{id}/download.json'
+    response = requests.request("GET", url, headers=headers)
+
+    with open("gdp_by_country.zip", mode="wb") as file:
+        file.write(response.content)
+
+    # print(response.text)
+
     # https://gpt-index.readthedocs.io/en/latest/examples/vector_stores/RedisIndexDemo.html
     documents = SimpleDirectoryReader(doc_path).load_data()
 
     # count = documents.__len__()
 
     vector_store = RedisVectorStore(
-        index_name="pg_essays",
+        index_name=matter,
         index_prefix="llama",
         redis_url="redis://localhost:6379",
-        # redis_url="rediss://default:AVNS_UeoUo9p18wxjLj6DyMT@db-redis-syd1-25631-do-user-7279278-0.b.db.ondigitalocean.com:25061",
         overwrite=True,
     )
 
@@ -65,6 +82,17 @@ def welcome():
     load()
     return "Loaded"
     
+
+# Do this on webhook
+@app.route('/documents/', methods=['POST'])
+def load_matter(matter):
+
+    # get matter id from request body
+    # matter = request.json['matter']
+
+    add_docs_to_redis(matter)
+    load(matter)
+    return "Loaded"
 
 
 if __name__ == '__main__':

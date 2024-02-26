@@ -16,7 +16,8 @@ import os
 
 os.environ["OPENAI_API_KEY"] = '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'
 
-engine = db.create_engine('postgresql://doadmin:AVNS_IWGrvoLyWBBT_TaUS9-@db-postgresql-syd1-64992-do-user-13928987-0.b.db.ondigitalocean.com:25060/tl')
+engine = db.create_engine(
+    'postgresql://doadmin:AVNS_IWGrvoLyWBBT_TaUS9-@db-postgresql-syd1-64992-do-user-13928987-0.b.db.ondigitalocean.com:25060/tl')
 connection = engine.connect()
 
 Session = sessionmaker(bind=engine)
@@ -32,12 +33,12 @@ def load_index_from_disk():
 def load_index_from_db():
     num_outputs = 512
 
-    llm_predictor = LLMPredictor(llm=OpenAI(temperature=0.7, model_name="text-davinci-003", max_tokens=num_outputs))
+    llm_predictor = LLMPredictor(llm=OpenAI(
+        temperature=0.7, model_name="text-davinci-003", max_tokens=num_outputs))
     docs = load_docs_from_db()
     service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
     index = GPTVectorStoreIndex.from_documents(docs)
     return index
-
 
 
 # notes https://gpt-index.readthedocs.io/en/latest/guides/primer/usage_pattern.html#optional-save-the-index-for-future-use
@@ -50,10 +51,9 @@ def parse_docs_folder(directory_path, delete_existing=False):
     print("Loading documents...")
     docs = SimpleDirectoryReader(directory_path, recursive=True).load_data()
 
-    ## Show all files and print them
+    # Show all files and print them
     # for doc in docs:
     #     # save_doc_to_db(doc)
-
 
     # print("Constructing index...")
 
@@ -75,7 +75,8 @@ def save_doc_to_db(doc):
     if (document != None):
 
         print("Saving document to db...")
-        document = Document(filename=doc.doc_id, doc_hash=doc.doc_hash, text=doc.text)
+        document = Document(filename=doc.doc_id,
+                            doc_hash=doc.doc_hash, text=doc.text)
         session.add(document)
         session.commit()
 
@@ -106,19 +107,18 @@ def load_index_from_disk():
     return index
 
 
-
 def save_index_to_db(index):
     # https://gpt-index.readthedocs.io/en/latest/examples/data_connectors/DatabaseReaderDemo.html
     db = DatabaseReader(
-        scheme = "postgresql", # Database Scheme
-        host = "db-postgresql-syd1-64992-do-user-13928987-0.b.db.ondigitalocean.com", # Database Host
-        port = "25060", # Database Port
-        user = "doadmin", # Database User
-        password = "AVNS_IWGrvoLyWBBT_TaUS9-", # Database Password
-        dbname = "tl", # Database Name
+        scheme="postgresql",  # Database Scheme
+        host="db-postgresql-syd1-64992-do-user-13928987-0.b.db.ondigitalocean.com",  # Database Host
+        port="25060",  # Database Port
+        user="doadmin",  # Database User
+        password="AVNS_IWGrvoLyWBBT_TaUS9-",  # Database Password
+        dbname="tl",  # Database Name
     )
 
-    ## db.load_data(index)
+    # db.load_data(index)
 
 
 def chatbot(input_text):
@@ -130,15 +130,16 @@ def chatbot(input_text):
 
     # # reload load index
     # index = load_index_from_storage(storage_context)
-    
-    ## index = GPTVectorStoreIndex.from_documents()
+
+    # index = GPTVectorStoreIndex.from_documents()
     query_engine = index.as_query_engine()
     response = query_engine.query(input_text)
     return response.response
 
 
 iface = gr.Interface(fn=chatbot,
-                     inputs=gr.inputs.Textbox(lines=7, label="Enter your text"),
+                     inputs=gr.inputs.Textbox(
+                         lines=7, label="Enter your text"),
                      outputs="text",
                      title="Custom-trained AI Chatbot")
 
@@ -152,13 +153,8 @@ iface = gr.Interface(fn=chatbot,
 
 print("Starting...")
 
-<<<<<<< HEAD
 # index = construct_index("docs")
 index = load_index_from_db()
-=======
-index = construct_index("docs")
-# load_index_from_disk()
->>>>>>> 3-make-a-flask-api-end-point-to-process-a-document
 
 # https://drive.google.com/drive/folders/1uNF5mUa-uiPyKUGtUxgBP0Ji9o1eEGv0?usp=sharing
 # index = construct_google_index('1uNF5mUa-uiPyKUGtUxgBP0Ji9o1eEGv0')
