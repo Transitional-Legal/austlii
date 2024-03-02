@@ -18,11 +18,7 @@ query_engine = None
 
 def load(matter):
     vector_store = RedisVectorStore(
-        index_name=matter",
-        index_prefix="llama",
-        redis_url="redis://localhost:6379",
-        overwrite=True,
-    )
+        index_name=matter, index_prefix="llama", redis_url=os.getenv('REDIS_URL'), overwrite=False)
 
     # Load the index from storage
     index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
@@ -51,12 +47,10 @@ def add_docs_to_redis(doc_path, matter):
     # https://gpt-index.readthedocs.io/en/latest/examples/vector_stores/RedisIndexDemo.html
     documents = SimpleDirectoryReader(doc_path).load_data()
 
-    # count = documents.__len__()
-
     vector_store = RedisVectorStore(
         index_name=matter,
         index_prefix="llama",
-        redis_url="redis://localhost:6379",
+        redis_url=os.getenv('REDIS_URL'),
         overwrite=True,
     )
 
@@ -81,7 +75,7 @@ def welcome():
     add_docs_to_redis('cases')
     load()
     return "Loaded"
-    
+
 
 # Do this on webhook
 @app.route('/documents/', methods=['POST'])
@@ -95,7 +89,5 @@ def load_matter(matter):
     return "Loaded"
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
-
-    
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=8080)

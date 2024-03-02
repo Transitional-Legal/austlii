@@ -12,6 +12,6 @@ pip install -r requirements.txt
 pip freeze > requirements.txt
 ```
 
-```
-docker run --name redis-vecdb -d -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+```bash
+docker run --name redis-vecdb -d -p 6379:6379 -p 8001:8001 
 ```
