@@ -13,5 +13,12 @@ pip freeze > requirements.txt
 ```
 
 ```bash
-docker run --name redis-vecdb -d -p 6379:6379 -p 8001:8001 
+# docker run --name redis-vecdb -d -p 6379:6379 -p 8001:8001 
+docker-compose up
+```
+
+Run the api
+```bash
+# uvicorn main:app --reload
+python -m flask --app api run
 ```
